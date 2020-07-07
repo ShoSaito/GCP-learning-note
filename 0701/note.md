@@ -12,6 +12,61 @@ https://cloud.google.com/iam/docs/understanding-roles
 * 事前定義ロール: 特定のサービスへのアクセスを細かく制御します。また、Google Cloud により管理されます。
 * カスタムロール: ユーザー指定の権限のリストに応じたきめ細かなアクセス権が提供されます。
 
+### 権限の付与@コンソール
+コンソール上では主に2つのレベルで管理可能になっている。
+1. プロジェクトレベル
+表示しているプロジェクトのレベルでユーザーの追加が可能
+![](2020-07-07-09-14-45.png)
+
+2. 組織レベル
+プロジェクトから一つ階層をあげたレベルでも管理が可能
+![](2020-07-07-09-57-43.png)
+
+
+### 権限の付与@gcloud
+
+構文
+```
+gcloud group add-iam-policy-binding resource \
+    --member=member --role=role-id
+```
+
+例
+```
+gcloud projects add-iam-policy-binding my-project \
+    --member=user:my-user@example.com --role=roles/viewer
+```
+#### `gcloud project`コマンド
+権限の付与は`gcloud project`で行う。
+`gcloud project`はプロジェクトの管理を行うコマンドが含まれている。
+
+[`gcloud project`](https://cloud.google.com/sdk/gcloud/reference/projects/)
+
+### 権限が持てるモノ
+#### どんなモノに権限付与できる❓
+
+> member に使用できる値の一覧については、[ポリシー バインディングのリファレンス](https://cloud.google.com/iam/docs/reference/rest/v1/Policy#Binding)をご覧ください。
+
+リンク先を確認すると、下記の様なモノに権限が付与できることが確認できる。
+* user
+* service account
+* group
+* domain
+* 削除したuserとかもある。この辺りのどんなユースケースが想定されているのだろう
+* allUsersとかもある。誰でも編集できるGCPプロジェクトを作成できるってこと⁇
+
+#### どんなユーザー(ドメイン)でも権限付与可能なのか❓
+G Suiteドメインか、Cloud Identityで設定したものでないとNG
+
+> 注: メンバータイプ user の場合、識別子に含まれるドメイン名は G Suite ドメインまたは Cloud Identity ドメインである必要があります。Cloud Identity ドメインの設定方法については、Cloud Identity の概要をご覧ください
+
+
+##### [Cloud Identity](https://cloud.google.com/identity/docs/overview)とは
+リンク先を読んでみるとIDaaSだと言うことは分かった。
+(Azure) Active Directoryとかと連携できるっぽい。
+
+[日本語の説明](https://support.google.com/cloudidentity/answer/7319251?hl=ja)
+
 
 ## 要点まとめ
 

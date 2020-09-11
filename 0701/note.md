@@ -4,13 +4,15 @@
 https://cloud.google.com/iam/docs/granting-changing-revoking-access
 
 ### 基本のロールについて
-https://cloud.google.com/iam/docs/understanding-roles
+
 
 ## ノート
 ### 基本ロール
 * 基本ロール: Cloud IAM の導入前に存在していたオーナー、編集者、閲覧者のロールが含まれます。
 * 事前定義ロール: 特定のサービスへのアクセスを細かく制御します。また、Google Cloud により管理されます。
 * カスタムロール: ユーザー指定の権限のリストに応じたきめ細かなアクセス権が提供されます。
+
+https://cloud.google.com/iam/docs/understanding-roles
 
 ### 権限の付与@コンソール
 コンソール上では主に2つのレベルで管理可能になっている。
@@ -23,7 +25,7 @@ https://cloud.google.com/iam/docs/understanding-roles
 ![](2020-07-07-09-57-43.png)
 
 
-### 権限の付与@gcloud
+### gcloudを利用した権限の付与
 
 構文
 ```
@@ -63,11 +65,29 @@ G Suiteドメインか、Cloud Identityで設定したものでないとNG
 
 ##### [Cloud Identity](https://cloud.google.com/identity/docs/overview)とは
 リンク先を読んでみるとIDaaSだと言うことは分かった。
-(Azure) Active Directoryとかと連携できるっぽい。
+(Azure) Active Directoryとかと連携できる。
 
 [日本語の説明](https://support.google.com/cloudidentity/answer/7319251?hl=ja)
 
+> 有料の G Suite アカウントとは別に、各ユーザーに無料の Cloud Identity アカウントを作成することで、ドメイン内のすべてのユーザーを Google 管理コンソールから管理できます。
+
+下記から設定可能
+![](2020-07-21-09-23-38.png)
+
+### プログラムによる権限の付与
+
 
 ## 要点まとめ
+
+### 権限範囲・権限内容(where、what)
+* GCPには基本のロールがある。広範なリソースに対して、権限が事前定義されている。
+* まずは基本ロールの利用を検討し、ユースケースによって適用範囲を個別に指定できる。
+* 権限内容は独自にカスタマイズできる。
+
+### 権限管理方法(how)
+* 権限の付与方法は3つある。
+    * GCPコンソール
+    * gcloud これは`gcloud project`で行う。
+
 
 ## 宿題

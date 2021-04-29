@@ -34,7 +34,7 @@ gcloud compute images list
 ```
 distributionはdebianにしました。
 
-#### マシンタイプ
+#### マシンタイプの検索
 下記コマンドでマシンタイプ表示させてみる。f1が安かったはず。
 ```
 gcloud compute machine-types list --filter="NAME~f1*" 
@@ -109,7 +109,7 @@ sudo apt update && sudo apt -y install apache2
 curl 'http://IP-ADDRESS'
 ```
 
-下記が表示されればOK
+ブラウザからアクセスする場合は、下記が表示されればOK
 ![image](web-server.png)
 
 

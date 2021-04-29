@@ -79,7 +79,6 @@ gcloud compute instances create my-web-server \
 --image-family debian-10 \
 --image-project debian-cloud \
 --machine-type f1-micro \
---zone us-central1-a \
 --tags allow-http,allow-https \
 ```
 
@@ -116,7 +115,17 @@ curl 'http://IP-ADDRESS'
 補足：gloudコマンドの使い方は`--help`で確認できる
 
 ## 2. VMインスタンスからインスタンステンプレートを作成する
+基本のコマンド。実行する際に、インスタンスの定義をオーバーライド出来るらしい。今回はそのまま作成する。
+```
+gcloud compute instance-templates create [INSTANCE_TEMPLATE_NAME] \
+    --source-instance=[SOURCE_INSTANCE] \
+    --source-instance-zone=[SOURCE_INSTANCE_ZONE] \
+```
 
+結果をリストして確認
+```
+gcloud compute instance-templates list
+```
 
 ## 3. インスタンステンプレートからマネージドインスタンスグループを作成する
 ```bash
@@ -126,6 +135,11 @@ gcloud compute instance-groups managed create INSTANCE_GROUP_NAME \
     --zone ZONE
 ```
 
+gcloud compute instance-groups managed create my- \
+    --size  \
+    --template  \
+    --zone 
+
 ## 4. httpロードバランサーを設定する
 ## 5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 
@@ -134,13 +148,16 @@ gcloud compute instance-groups managed create INSTANCE_GROUP_NAME \
 
 
 ## 公式doc
-##### 1. VMインスタンスを作成しwebサーバをたてる
+#### 1. VMインスタンスを作成しwebサーバをたてる
 [基本的な Apache ウェブサーバーの実行](https://cloud.google.com/compute/docs/tutorials/basic-webserver-apache?hl=ja)
 
-##### 2. VMインスタンスからインスタンステンプレートを作成する
-##### 3. インスタンステンプレートからマネージドインスタンスグループを作成する
-##### 4. httpロードバランサーを設定する
-##### 5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
+#### 2. VMインスタンスからインスタンステンプレートを作成する
+[既存のインスタンスに基づくインスタンス テンプレートの作成](https://cloud.google.com/compute/docs/instance-templates/create-instance-templates?hl=ja#based-on-existing-instance)
 
-* [マネージド インスタンス グループを作成する](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances?hl=ja#create_managed_group)
+#### 3. インスタンステンプレートからマネージドインスタンスグループを作成する
+[マネージド インスタンス グループの作成](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances?hl=ja)
+
+
+#### 4. httpロードバランサーを設定する
+#### 5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 * [インスタンスのグループの自動スケーリング](https://cloud.google.com/compute/docs/autoscaler?hl=ja)

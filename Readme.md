@@ -1,8 +1,8 @@
 # GCP laerning note 📚
 
 ## これを参考に進めていく
-[GCP Associate Cloud Engineer チートシート](https://qiita.com/kyo2bay/items/b9d1e5f2511c90b94c92)
-[【GCP認定資格】Google Cloud Platform Associate Cloud Engineer模擬問題集](https://www.udemy.com/course/gcp-ace-mogi/)
+* [GCP Associate Cloud Engineer チートシート](https://qiita.com/kyo2bay/items/b9d1e5f2511c90b94c92)
+* [【GCP認定資格】Google Cloud Platform Associate Cloud Engineer模擬問題集](https://www.udemy.com/course/gcp-ace-mogi/)
 
 ## ログ
 ### 2020

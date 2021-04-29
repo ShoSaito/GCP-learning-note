@@ -71,7 +71,9 @@ gcloud compute firewall-rules update allow-http --target-tags allow-http
 #### 外部IPアドレス
 `gcloud compute instances create`実行時に、自動でエフェメラル外部 IP アドレスが付与される
 
-最終的に指定した完成したコマンド
+
+### 最終的に指定した完成したコマンド
+この様にしました。tag付けの概念が少し難しかったです。
 ```
 gcloud compute instances create my-web-server \
 --image-family debian-10 \
@@ -80,8 +82,36 @@ gcloud compute instances create my-web-server \
 --zone us-central1-a \
 --tags allow-http,allow-https \
 ```
+
 GCPコンソールで確認すると下記にcheckが入っていないが、アクセスは出来る模様
 ![image](http.png)
+
+(わかりにくいので、GCPコンソールと同期する様にしてほしいですね。)
+
+#### webサーバーを構築する。
+vmのリストを表示
+```
+gcloud compute instances list
+```
+
+vmにssh
+```
+gcloud compute ssh my-web-server
+```
+
+apacheをインストール
+```
+sudo apt update && sudo apt -y install apache2
+```
+
+ローカルからcurlでアクセスを確認
+```
+curl 'http://IP-ADDRESS'
+```
+
+下記が表示されればOK
+![image](web-server.png)
+
 
 補足：gloudコマンドの使い方は`--help`で確認できる
 

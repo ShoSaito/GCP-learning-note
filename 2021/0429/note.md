@@ -81,6 +81,7 @@ gcloud compute instances create my-web-server \
 --tags allow-http,allow-https \
 ```
 GCPコンソールで確認すると下記にcheckが入っていないが、アクセスは出来る模様
+![image](http.png)
 
 補足：gloudコマンドの使い方は`--help`で確認できる
 

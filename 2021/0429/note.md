@@ -86,7 +86,7 @@ gcloud compute instances create my-web-server \
 GCPコンソールで確認すると下記にcheckが入っていないが、アクセスは出来る模様
 ![image](http.png)
 
-(わかりにくいので、GCPコンソールと同期する様にしてほしいですね。)
+(可能ならGCPコンソールの表示と同期させてほしいですね。)
 
 #### webサーバーを構築する。
 vmのリストを表示

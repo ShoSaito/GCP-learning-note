@@ -15,6 +15,7 @@
 ## 1. インスタンステンプレートを作成する
 基本のコマンドに必要なオプションをつけて実行する。
 
+apacheのインストール時にバージョンを明記するのが実用的
 ```
 gcloud compute instance-templates create template-my-web-server \
     --image-family debian-10 \
@@ -25,18 +26,18 @@ gcloud compute instance-templates create template-my-web-server \
     sudo apt update
     sudo apt -y install apache2=2.4.38-3+deb10u4'
 ```
-apacheのインストール時にバージョンを明記するのが実用的
 
 下記、正しくないかもしれないが、debianの使い方
+```
 - パッケージのインストール状況の確認
     - `dpkg -L <pachagename>`
 
 - 利用可能なバージョンの確認
     - `apt-cache showpkg <pachagename>`
+```
 
 
-
-結果をリストして確認
+createコマンドの結果をリストして確認
 ```
 gcloud compute instance-templates list
 
@@ -45,6 +46,8 @@ template-my-web-server  f1-micro                    yyyy-mm-ddT03:51:48.531-07:0
 ```
 
 ## 2. インスタンステンプレートを利用して、マネージドインスタンスグループを作成する
+
+マネージドインスタンスグループの作成コマンド
 ```bash
 gcloud compute instance-groups managed create my-vm-group \
     --size 2 \
@@ -55,7 +58,7 @@ gcloud compute instance-groups managed create my-vm-group \
 -----|---
 --size | グループの初期インスタンス数。整数を指定。今回は2
 --template | 使用するテンプレート 
---zone | デフォルトから変更がなければ、指定は不要に感じる。
+--zone | デフォルトから変更がなければ指定は不要?
 
 作成結果の確認
 ```
@@ -69,8 +72,6 @@ my-vm-group  asia-northeast1-a  zone   default  Yes      0
 ```
 gcloud compute instances list
 
-NAME         LOCATION           SCOPE  NETWORK  MANAGED  INSTANCES
-my-vm-group  asia-northeast1-a  zone   default  Yes      0
 
 NAME              ZONE               MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP    STATUS
 my-vm-group-xxx1  asia-northeast1-a  f1-micro                   [INTERNAL_IP]  [EXTERNAL_IP]  RUNNING
@@ -79,8 +80,12 @@ my-vm-group-xxx2  asia-northeast1-a  f1-micro                   [INTERNAL_IP]  [
 
 webサーバーの動作確認、返答があればOK
 ```
-curl [EXTERNAL_IP]
+curl [EXTERNAL_IP]@my-vm-group-xxx1
+curl [EXTERNAL_IP]@my-vm-group-xxx2
 ```
+
+上記でマネージドインスタンスグループが構成出来た。
+
 ## 3. httpロードバランサーを設定する
 
 

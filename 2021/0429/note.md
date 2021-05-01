@@ -5,159 +5,101 @@
 2021/04/29
 
 ## やりたいこと
-1. VMインスタンスを作成しwebサーバをたてる
-2. VMインスタンスからインスタンステンプレートを作成する
-3. インスタンステンプレートからマネージドインスタンスグループを作成する
-4. httpロードバランサーを設定する
-5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
+1. インスタンステンプレートを作成する
+2. インスタンステンプレートを利用して、マネージドインスタンスグループを作成する
+3. httpロードバランサーを設定する
+4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 
-上記をなるべくコマンドで実行していく。
+上記をなるべくコマンドで実行していきます。
 
-## 1. VMインスタンスを作成しwebサーバをたてる  
+## 1. インスタンステンプレートを作成する
+基本のコマンドに必要なオプションをつけて実行する。
 
-インスタンスを作成する基本のコマンドは下記。
-種々のオプションを色々つけていくことで、目的に合致したインスタンスを作成出来る。
 ```
-gcloud compute instances create [INSTANCE-NAME]
+gcloud compute instance-templates create template-my-web-server \
+    --image-family debian-10 \
+    --image-project debian-cloud \
+    --tags http-server \
+    --machine-type f1-micro \
+    --metadata startup-script='#! /bin/bash 
+    sudo apt update
+    sudo apt -y install apache2=2.4.38-3+deb10u4'
 ```
+apacheのインストール時にバージョンを明記するのが実用的
 
-今回の下記の要件を満たすようにオプションの内容を検討する。
-* 費用を抑えて構成する
-* インスタンスへのhttpアクセスを可能にする
+下記、正しくないかもしれないが、debianの使い方
+- パッケージのインストール状況の確認
+    - `dpkg -L <pachagename>`
 
-
-### 費用を抑えて構成する
-#### イメージの検索
-インスタンスに利用可能なイメージのリスト
-```
-gcloud compute images list 
-```
-distributionはdebianにしました。
-
-#### マシンタイプの検索
-下記コマンドでマシンタイプ表示させてみる。f1が安かったはず。
-```
-gcloud compute machine-types list --filter="NAME~f1*" 
-```
-
-`NAME~f1*`は`NAME like f1*`の意味
-
-### インスタンスへのhttpアクセスを可能にする
-#### ファイアーウォール
-httpアクセスを許可したいので、firewallを適用したい。現在のルールをリストしてみる。
-```
-gcloud compute firewall-rules list
-```
-
-httpアクセスに関するルールがなかったので作成
-```
-gcloud compute firewall-rules create allow-http \
---allow tcp:80
-
-gcloud compute firewall-rules create allow-https \
---allow tcp:443
-```
-
-ルールにtagをつける。
-```
-gcloud compute firewall-rules update allow-http --target-tags allow-http
-```
-※tag付けしないと、全てのリソースにルールが適用される。tagをつけることで、特定のインスタンスだけに適用するルールを作成できる。
-![image](tag.png)
+- 利用可能なバージョンの確認
+    - `apt-cache showpkg <pachagename>`
 
 
-作成したtagsを`--tags`オプションでインスタンス作成時に指定する
-
-#### 外部IPアドレス
-`gcloud compute instances create`実行時に、自動でエフェメラル外部 IP アドレスが付与される
-
-
-### 最終的に指定した完成したコマンド
-この様にしました。tag付けの概念が少し難しかったです。
-```
-gcloud compute instances create my-web-server \
---image-family debian-10 \
---image-project debian-cloud \
---machine-type f1-micro \
---tags allow-http,allow-https \
-```
-
-GCPコンソールで確認すると下記にcheckが入っていないが、アクセスは出来る模様
-![image](http.png)
-
-(可能ならGCPコンソールの表示と同期させてほしいですね。)
-
-#### webサーバーを構築する。
-vmのリストを表示
-```
-gcloud compute instances list
-```
-
-vmにssh
-```
-gcloud compute ssh my-web-server
-```
-
-apacheをインストール
-```
-sudo apt update && sudo apt -y install apache2
-```
-
-ローカルからcurlでアクセスを確認
-```
-curl 'http://IP-ADDRESS'
-```
-
-ブラウザからアクセスする場合は、下記が表示されればOK
-![image](web-server.png)
-
-
-補足：gloudコマンドの使い方は`--help`で確認できる
-
-## 2. VMインスタンスからインスタンステンプレートを作成する
-基本のコマンド。実行する際に、インスタンスの定義をオーバーライド出来るらしい。今回はそのまま作成する。
-```
-gcloud compute instance-templates create [INSTANCE_TEMPLATE_NAME] \
-    --source-instance=[SOURCE_INSTANCE] \
-    --source-instance-zone=[SOURCE_INSTANCE_ZONE] \
-```
 
 結果をリストして確認
 ```
 gcloud compute instance-templates list
+
+NAME                    MACHINE_TYPE   PREEMPTIBLE  CREATION_TIMESTAMP
+template-my-web-server  f1-micro                    yyyy-mm-ddT03:51:48.531-07:00
 ```
 
-## 3. インスタンステンプレートからマネージドインスタンスグループを作成する
+## 2. インスタンステンプレートを利用して、マネージドインスタンスグループを作成する
 ```bash
-gcloud compute instance-groups managed create INSTANCE_GROUP_NAME \
-    --size SIZE \
-    --template INSTANCE_TEMPLATE \
-    --zone ZONE
+gcloud compute instance-groups managed create my-vm-group \
+    --size 2 \
+    --template template-my-web-server \
+    --zone asia-northeast1-a
+```
+パラメタ | 意味　　
+-----|---
+--size | グループの初期インスタンス数。整数を指定。今回は2
+--template | 使用するテンプレート 
+--zone | デフォルトから変更がなければ、指定は不要に感じる。
+
+作成結果の確認
+```
+gcloud compute instance-groups list
+
+NAME         LOCATION           SCOPE  NETWORK  MANAGED  INSTANCES
+my-vm-group  asia-northeast1-a  zone   default  Yes      0
 ```
 
-gcloud compute instance-groups managed create my- \
-    --size  \
-    --template  \
-    --zone 
+インスタンスの確認
+```
+gcloud compute instances list
 
-## 4. httpロードバランサーを設定する
-## 5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
+NAME         LOCATION           SCOPE  NETWORK  MANAGED  INSTANCES
+my-vm-group  asia-northeast1-a  zone   default  Yes      0
+
+NAME              ZONE               MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP    EXTERNAL_IP    STATUS
+my-vm-group-xxx1  asia-northeast1-a  f1-micro                   [INTERNAL_IP]  [EXTERNAL_IP]  RUNNING
+my-vm-group-xxx2  asia-northeast1-a  f1-micro                   [INTERNAL_IP]  [EXTERNAL_IP]  RUNNING
+```
+
+webサーバーの動作確認、返答があればOK
+```
+curl [EXTERNAL_IP]
+```
+## 3. httpロードバランサーを設定する
+
+
+
+## 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 
 
 
 
 
 ## 公式doc
-#### 1. VMインスタンスを作成しwebサーバをたてる
-[基本的な Apache ウェブサーバーの実行](https://cloud.google.com/compute/docs/tutorials/basic-webserver-apache?hl=ja)
 
-#### 2. VMインスタンスからインスタンステンプレートを作成する
+#### 1. インスタンステンプレートを作成する
 [既存のインスタンスに基づくインスタンス テンプレートの作成](https://cloud.google.com/compute/docs/instance-templates/create-instance-templates?hl=ja#based-on-existing-instance)
 
-#### 3. インスタンステンプレートからマネージドインスタンスグループを作成する
+#### 2. インスタンステンプレートを利用して、マネージドインスタンスグループを作成する
 [マネージド インスタンス グループの作成](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances?hl=ja)
 
 
-#### 4. httpロードバランサーを設定する
-#### 5. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
+#### 3. httpロードバランサーを設定する
+#### 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 * [インスタンスのグループの自動スケーリング](https://cloud.google.com/compute/docs/autoscaler?hl=ja)

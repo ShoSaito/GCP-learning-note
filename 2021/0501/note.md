@@ -124,20 +124,20 @@ sudo apt update && sudo apt -y install apache2
 curl 'http://IP-ADDRESS'
 ```
 
-下記、正しくないかもしれないが、debianの使い方
+ブラウザからアクセスする場合は、下記が表示されればOK
+![image](web-server.png)
+
+
+補足：
+* gloudコマンドの使い方は`--help`で確認できます。
+* 下記、正しくないかもしれないが、debianの使い方
+```
 - パッケージのインストール状況の確認
     - `dpkg -L <pachagename>`
 
 - 利用可能なバージョンの確認
     - `apt-cache showpkg <pachagename>`
-
-
-
-ブラウザからアクセスする場合は、下記が表示されればOK
-![image](web-server.png)
-
-
-補足：gloudコマンドの使い方は`--help`で確認できます。
+```
 
 ### VMインスタンスからインスタンステンプレートを作成する際の注意点
 この記事では詳細の記載はないが、VMインスタンスからインスタンスのテンプレートを作成することが出来る。下記の注意点があるので注意。

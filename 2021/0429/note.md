@@ -106,5 +106,8 @@ curl [EXTERNAL_IP]@my-vm-group-xxx2
 
 
 #### 3. httpロードバランサーを設定する
+
+
 #### 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 * [インスタンスのグループの自動スケーリング](https://cloud.google.com/compute/docs/autoscaler?hl=ja)
+* [負荷分散処理能力に基づくスケーリング](https://cloud.google.com/compute/docs/autoscaler/scaling-load-balancing?hl=ja)

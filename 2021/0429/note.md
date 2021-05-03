@@ -68,7 +68,7 @@ NAME         LOCATION           SCOPE  NETWORK  MANAGED  INSTANCES
 my-vm-group  asia-northeast1-a  zone   default  Yes      0
 ```
 
-インスタンスの確認
+インスタンスの確認、インスタンスグループを作成と同時にインスタンスが起動している。
 ```
 gcloud compute instances list
 
@@ -87,8 +87,116 @@ curl [EXTERNAL_IP]@my-vm-group-xxx2
 上記でマネージドインスタンスグループが構成出来た。
 
 ## 3. httpロードバランサーを設定する
+まずは、マネージドインスタンスグループに対して、http負荷分散の処理能力に応じてスケーリングする様に設定する。
+```
+gcloud compute instance-groups managed set-autoscaling my-vm-group \
+    --max-num-replicas 7 \
+    --target-load-balancing-utilization 0.6
+
+Created [https://[MY_ZONE]/autoscalers/my-vm-group-xxxx].
+---
+autoscalingPolicy:
+  coolDownPeriodSec: 60
+  loadBalancingUtilization:
+    utilizationTarget: 0.6
+  maxNumReplicas: 7
+  minNumReplicas: 2
+  mode: ON
+creationTimestamp: 'yyyy-mm-ddT05:59:25.345-07:00'
+id: 'xxxxxxxxxxxxx'
+kind: compute#autoscaler
+name: my-vm-group-j7oy
+selfLink: https://[MY_ZONE]/autoscalers/my-vm-group-xxxx
+status: ACTIVE
+target: https://[MY_ZONE]/instanceGroupManagers/my-vm-group
+zone: https://[MY_ZONE]
+```
+
+ヘルスcheckの構成
+```
+gcloud compute health-checks create http http-basic-check
+
+Created [https://www.googleapis.com/compute/v1/projects/hoo/global/healthChecks/http-basic-check].
+NAME              PROTOCOL
+http-basic-check  HTTP
+```
+
+バックエンドサービスの構成
+```
+gcloud compute backend-services create fortressnet-backend-service \
+    --protocol HTTP \
+    --health-checks http-basic-check \
+    --global
+
+Created [https://www.googleapis.com/compute/v1/projects/hoo/global/backendServices/fortressnet-backend-service].
+NAME                         BACKENDS  PROTOCOL
+fortressnet-backend-service            HTTP
+```
+
+作成したバックエンドサービスにバックエンド(ここではインスタンスグループ)を追加
+```
+gcloud compute backend-services add-backend fortressnet-backend-service \
+    --balancing-mode RATE \
+    --max-rate-per-instance 100 \
+    --instance-group my-vm-group \
+    --instance-group-zone asia-northeast1-a \
+    --global
+
+Updated [https://www.googleapis.com/compute/v1/projects/hoo/global/backendServices/fortressnet-backend-service].
+```
+
+URL マップを定義
+```
+gcloud compute url-maps create fortressnet-balancer \
+    --default-service fortressnet-backend-service
+Created [https://www.googleapis.com/compute/v1/projects/hoo/global/urlMaps/fortressnet-balancer].
+
+NAME                  DEFAULT_SERVICE
+fortressnet-balancer  backendServices/fortressnet-backend-service
+```
+
+HTTP プロキシルートを定義
+```
+gcloud compute target-http-proxies create fortressnet-http-proxy \
+    --url-map fortressnet-balancer
+```
+
+フロントエンドの構成
+```bash
+# ロードバランサーにIPv4を構成
+gcloud compute addresses create fortressnet-ip \
+    --ip-version IPV4 \
+    --global
+
+# ロードバランサーにIPv6を構成
+gcloud compute addresses create fortressnet-ipv6 \
+    --ip-version IPV6 \
+    --global
+
+# ロードバランサーの外部IPを確認
+gcloud compute addresses list
+
+# プロキシに転送するルールを作成
+gcloud compute forwarding-rules create fortressnet-http-rule \
+    --global \
+    --target-http-proxy fortressnet-http-proxy \
+    --ports 80 \
+    --address 34.117.112.97
+
+gcloud compute forwarding-rules create fortressnet-http-ipv6-rule \
+    --global \
+    --target-http-proxy fortressnet-http-proxy \
+    --ports 80 \
+    --address 2600:1901:0:8b8::
+```
+
+ここまでの全体像
+(ヘルスチェックの向き先がまだ良く理解できていない。概ねこの様な形と思われる。)
+![image](loadblancer.png)
 
 
+俯瞰してみると、ロードバランサーは種々の負荷分散系のコンポーネントの組み合わせの様だ。
+GCPコンソールで設定を行う場合は、gcloudコマンドよりも上記の構成がイメージしやすいようなUIになっていると感じた。
 
 ## 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 
@@ -99,14 +207,14 @@ curl [EXTERNAL_IP]@my-vm-group-xxx2
 ## 公式doc
 
 #### 1. インスタンステンプレートを作成する
-[既存のインスタンスに基づくインスタンス テンプレートの作成](https://cloud.google.com/compute/docs/instance-templates/create-instance-templates?hl=ja#based-on-existing-instance)
+* [既存のインスタンスに基づくインスタンス テンプレートの作成](https://cloud.google.com/compute/docs/instance-templates/create-instance-templates?hl=ja#based-on-existing-instance)
 
 #### 2. インスタンステンプレートを利用して、マネージドインスタンスグループを作成する
-[マネージド インスタンス グループの作成](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances?hl=ja)
+* [マネージド インスタンス グループの作成](https://cloud.google.com/compute/docs/instance-groups/creating-groups-of-managed-instances?hl=ja)
 
 
 #### 3. httpロードバランサーを設定する
-
+* [Compute Engine でのウェブサービスのグローバルな自動スケーリング](https://cloud.google.com/compute/docs/tutorials/globally-autoscaling-a-web-service-on-compute-engine?hl=ja#gcloud)
 
 #### 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 * [インスタンスのグループの自動スケーリング](https://cloud.google.com/compute/docs/autoscaler?hl=ja)

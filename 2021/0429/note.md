@@ -199,10 +199,36 @@ gcloud compute forwarding-rules create fortressnet-http-ipv6-rule \
 GCPコンソールで設定を行う場合は、gcloudコマンドよりも上記の構成がイメージしやすいようなUIになっていると感じた。
 
 ## 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
+[siege](https://github.com/JoeDog/siege)をインストールしたインスタンスを作成する。ここからリクエストを発生させる。
+```
+gcloud compute instances create europe-loadtest \
+    --network default \
+    --zone europe-west1-c \
+    --metadata startup-script='apt -y install siege'
+```
+
+サーバーにログインしテスト開始
+```bash
+# VMにsshでログイン
+gcloud compute ssh load-test --zone europe-west4-a 
+
+# siegeでアクセスする
+# `-c`は同時接続数を指定するオプション。
+siege -c150 http://EXTERNAL_IPv4@Loadbalancer
+```
+
+GCPコンソールで確認すると、自動スケールすることが確認された。
+VMが設定した通りに7個まで増えている。
+![image](monitoring.png)
+![image](VMs.png)
 
 
+`siege`を終了して暫くすると、インスタンスが減っていることも確認できます。
+デフォルトの2つまで減少していました。
 
 
+以上で、GCEで自動スケーリングの構築することが出来ました。
+スケール時の変数など詳細について徐々に理解していきたいと思います。
 
 ## 公式doc
 
@@ -219,3 +245,5 @@ GCPコンソールで設定を行う場合は、gcloudコマンドよりも上�
 #### 4. 負荷テストを実施して、インスタンスが自動スケーリングすることを確認する
 * [インスタンスのグループの自動スケーリング](https://cloud.google.com/compute/docs/autoscaler?hl=ja)
 * [負荷分散処理能力に基づくスケーリング](https://cloud.google.com/compute/docs/autoscaler/scaling-load-balancing?hl=ja)
+* [Compute Engine でのウェブサービスのグローバルな自動スケーリング](https://cloud.google.com/compute/docs/tutorials/globally-autoscaling-a-web-service-on-compute-engine?hl=ja#gcloud)
+

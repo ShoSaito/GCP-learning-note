@@ -20,7 +20,7 @@ BigQueryのアクティブストレージ料金は、Cloud Storage Nearlineス�
 
 
 ## GCE
-## カスタム マシンタイプ
+### カスタム マシンタイプ
 [カスタム マシンタイプの VM インスタンスを作成する](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud)
 
 N1 マシンタイプの場合は、gcloud compute instances create コマンドを使用して次のいずれかのオプションを指定します。

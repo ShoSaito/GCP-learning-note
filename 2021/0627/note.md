@@ -100,8 +100,13 @@ Deploymentを使用してServiceを公開するには、kubectl expose deploymen
 カスタムモード VPC ネットワークを作成すると、サブネットは自動的に作成されません。この種類のネットワークでは、そのサブネットと IP 範囲を完全に制御できます。選択したリージョン内で、指定した IP 範囲を使用して、作成するサブネットを決定します。
 
 * [カスタムルートのインポートとエクスポート](https://cloud.google.com/vpc/docs/vpc-peering#importing-exporting-routes)
+VPCピアリングしたときに使用する。
+![picture 5](../../images/c52e2a7084925e42242a6604ba19016137935f3c4808d7495603f6004f798b23.png)  
+
 
 * [ルートアドバタイズ](https://cloud.google.com/network-connectivity/docs/router/concepts/overview#route-advertisement)
+VPCピアリングしたときに使用する。
+![picture 4](../../images/4c3cc73788b8a5b8b71344ea0b653211c0e898a174b9807f21471c02174b774e.png)  
 
 * [Cloud VPN と Cloud Interconnect](https://cloud.google.com/network-connectivity/docs/how-to/choose-product?hl=ja)
 

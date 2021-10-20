@@ -30,6 +30,20 @@ N1 マシンタイプの場合は、gcloud compute instances create コマンド
 ### OSログイン
 [OSログイン](https://cloud.google.com/compute/docs/oslogin)を使用するとIAMの役割を使用してLinuxインスタンスへのSSHアクセスを管理できます。
 
+```OSログインを有効に
+gcloud compute instances add-metadata my-vm \
+    --metadata enable-oslogin=TRUE
+```
+
+```OSログインの2段階認証を有効に
+gcloud compute instances add-metadata my-vm \
+    --metadata enable-oslogin-2fa=True
+```
+
+プロジェクトレベル、インスタンスレベルで設定できる。
+OSログインを使うと、IAMでログインを制御できるので便利。より細かいアクセス管理が可能になる。
+基本のロールは○○だけど、このインスタンスに対してはログインできる様になるなど。
+
 ### ヘルスチェック
 [ヘルスチェックと自動修復の設定](https://cloud.google.com/compute/docs/instance-groups/autohealing-instances-in-migs)
 

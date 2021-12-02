@@ -59,6 +59,7 @@ LBのオプションとして設定出来るサービス
 ## ストレージの設計おさらい
 ## k8s Object
 ### Pod
+
 ![picture 8](../../images/52f58727c21534452e69748cc957e52c480d9c5a936bec2dc321f8024835d1ea.png)  
 
 ### Serive

@@ -52,6 +52,23 @@ LBのオプションとして設定出来るサービス
 該当するgcloudコマンドは[`gcloud compute security-policies`](https://cloud.google.com/sdk/gcloud/reference/compute/security-policies)
 
 ## k8sのリージョンクラスタ、ゾーンクラスタの違い
+[クラスタのタイプ](https://cloud.google.com/kubernetes-engine/docs/concepts/types-of-clusters#single-zone_clusters)
+
+![picture 10](../../images/a90052fae15e6c44154b917b3436b1a5a153644f89cfbd60f62c538f12180a66.png)  
+
+> 本番環境ワークロードを実行するには、リージョン クラスタを使用します。リージョン クラスタの方がゾーンクラスタと比較して可用性に優れているためです。
+
+https://cloud.google.com/blog/ja/products/containers-kubernetes/best-practices-for-creating-a-highly-available-gke-cluster
+
+> リージョン クラスタは、3 つのKubernetes コントロール プレーン クォーラムで構成されているため、ゾーンクラスタよりもクラスタのコントロール プレーン API に提供できる可用性が高くなります
+
+
+> ワークロードがトラフィックを受信する準備が本当にできているかどうかを Kubernetes に確実に伝えるには、Readiness Probe を設定しましょう。同様に、Liveness Probe を設定して、ワークロードが本当に応答不可なのか、CPU で集中的に処理が実行されているだけなのかを知らせましょう。
+
+## k8sのアフィニティー、クォーラム
+
+
+
 ## Spannerのアーキ基礎、なぜ主キーはインクリメンタルな数字では良くないのか
 ## Bigtableの可用性の設計方法
 ## VPCのサブネットの考え方
@@ -81,3 +98,19 @@ LBのオプションとして設定出来るサービス
 
 ## k8sのスケーリング設定
 ## TrasnferApplianceの調査
+
+## GCSのバケット公開設定
+* `gsutil defacl` : バケット単位
+* `gsutil acl` : オブジェクト単位
+
+[アクセス制御リスト（ACL） ](https://cloud.google.com/storage/docs/access-control/lists)
+
+
+## ネットワーク フォレンジック
+不正侵入の検知・攻撃の監視・企業の内部統制などに用いられるデジタル鑑識のひとつで、主にデジタルインシデントの発生源を発見するために、ネットワーク上のイベント（ログや通信データ）を記録、分析、保全するもの
+
+[VPC フローログ](https://cloud.google.com/vpc/docs/using-flow-logs)
+
+
+## Cluster IP
+
